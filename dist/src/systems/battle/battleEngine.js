@@ -1,18 +1,15 @@
-import { Character, Enemy, BattleState } from '../../types';
-import { calculateDamage, Attacker, Target } from './damageCalculator';
-
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.BattleEngine = void 0;
+const damageCalculator_1 = require("./damageCalculator");
 /**
  * Battle Engine
- * 
+ *
  * Manages the turn-based combat system.
  * Handles turn order, action execution, and win/loss conditions.
  */
-export class BattleEngine {
-    private battleState: BattleState;
-    private player: Character;
-    private enemy: Enemy;
-
-    constructor(player: Character, enemy: Enemy) {
+class BattleEngine {
+    constructor(player, enemy) {
         this.player = player;
         this.enemy = enemy;
         this.battleState = {
@@ -21,16 +18,13 @@ export class BattleEngine {
             isBattleOver: false
         };
     }
-
-    public getState(): BattleState {
+    getState() {
         return this.battleState;
     }
-
-    public executeTurn(action: 'Attack' | 'Defend'): string {
-        if (this.battleState.isBattleOver) return "Battle is over.";
-
+    executeTurn(action) {
+        if (this.battleState.isBattleOver)
+            return "Battle is over.";
         let log = "";
-
         // Active character acts
         if (this.battleState.activeCharacterId === this.player.id) {
             log += this.playerAction(action);
@@ -40,7 +34,8 @@ export class BattleEngine {
                 return log + " Enemy defeated!";
             }
             this.battleState.activeCharacterId = this.enemy.id;
-        } else {
+        }
+        else {
             log += this.enemyAction();
             if (this.player.hp <= 0) {
                 this.battleState.isBattleOver = true;
@@ -50,25 +45,23 @@ export class BattleEngine {
             this.battleState.activeCharacterId = this.player.id;
             this.battleState.turn++;
         }
-
         return log;
     }
-
-    private playerAction(action: 'Attack' | 'Defend'): string {
+    playerAction(action) {
         if (action === 'Attack') {
-            const attacker: Attacker = { atk: this.player.atk, wrenchMod: 1.0 };
-            const target: Target = { def: this.enemy.def, isArmorBroken: false };
-            const damage = calculateDamage(attacker, target);
+            const attacker = { atk: this.player.atk, wrenchMod: 1.0 };
+            const target = { def: this.enemy.def, isArmorBroken: false };
+            const damage = (0, damageCalculator_1.calculateDamage)(attacker, target);
             this.enemy.hp -= damage;
             return `Player attacks! Dealt ${damage} damage. Enemy HP: ${this.enemy.hp}.`;
         }
         return "Player defends.";
     }
-
-    private enemyAction(): string {
+    enemyAction() {
         // Simple AI: Always attack
         const damage = Math.max(1, this.enemy.atk - this.player.def);
         this.player.hp -= damage;
         return `Enemy attacks! Dealt ${damage} damage. Player HP: ${this.player.hp}.`;
     }
 }
+exports.BattleEngine = BattleEngine;
