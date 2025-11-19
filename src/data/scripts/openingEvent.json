@@ -1,0 +1,48 @@
+{
+    "sceneId": "scn_opening",
+    "title": "The Rusty Sky",
+    "events": [
+        {
+            "type": "dialogue",
+            "speaker": "Alto",
+            "text": "Just a little more... come on, you stubborn piece of junk!",
+            "action": "Wrench tightening animation"
+        },
+        {
+            "type": "sfx",
+            "file": "se_wrench_turn.wav"
+        },
+        {
+            "type": "dialogue",
+            "speaker": "Mina",
+            "text": "Alto, be careful. The pressure gauge is in the red zone.",
+            "expression": "Worried"
+        },
+        {
+            "type": "dialogue",
+            "speaker": "Alto",
+            "text": "Don't worry, Mina. I can hear it. The engine wants to run. It's singing!",
+            "expression": "Grin"
+        },
+        {
+            "type": "action",
+            "description": "The engine roars to life, emitting black smoke."
+        },
+        {
+            "type": "dialogue",
+            "speaker": "Mina",
+            "text": "It's working! ...Wait, what's that sound?",
+            "expression": "Surprised"
+        },
+        {
+            "type": "bgm",
+            "file": "bgm_crisis.mp3"
+        },
+        {
+            "type": "dialogue",
+            "speaker": "Imperial Trooper",
+            "text": "Found them! The fugitive girl is here! Seize her!",
+            "expression": "Helmet"
+        }
+    ]
+}

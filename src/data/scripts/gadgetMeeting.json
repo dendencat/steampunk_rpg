@@ -1,0 +1,48 @@
+{
+    "sceneId": "scn_gadget_meet",
+    "title": "The Iron Giant in the Scrapheap",
+    "events": [
+        {
+            "type": "action",
+            "description": "Alto and Mina stumble upon a pile of inactive robots in the junkyard."
+        },
+        {
+            "type": "dialogue",
+            "speaker": "Alto",
+            "text": "Whoa... look at this one. It's huge. Pre-war model, maybe?",
+            "expression": "Curious"
+        },
+        {
+            "type": "dialogue",
+            "speaker": "Mina",
+            "text": "It feels... sad. Like it's sleeping.",
+            "expression": "Sad"
+        },
+        {
+            "type": "action",
+            "description": "Mina touches the robot's chest. A faint blue light glows."
+        },
+        {
+            "type": "sfx",
+            "file": "se_power_up.wav"
+        },
+        {
+            "type": "dialogue",
+            "speaker": "Robot",
+            "text": "SYSTEM... REBOOT. TARGET... CONFIRMED. PROTECT... MINA.",
+            "voice": "Robotic, Low pitch"
+        },
+        {
+            "type": "dialogue",
+            "speaker": "Alto",
+            "text": "It knows your name?! Hey, big guy, are you friend or foe?",
+            "expression": "Guard up"
+        },
+        {
+            "type": "dialogue",
+            "speaker": "Robot",
+            "text": "FRIEND. NAME... GADGET. ASSIGNED ROLE... TANK.",
+            "action": "Salute animation (clunky)"
+        }
+    ]
+}
