@@ -1,0 +1,64 @@
+{
+    "name": "Lower District (Slums)",
+    "description": "A rusty, oil-smelling district where debris from the Upper District falls.",
+    "locations": [
+        {
+            "id": "loc_garage",
+            "name": "Alto's Garage",
+            "type": "SafeZone",
+            "description": "A small workshop filled with junk and tools. Home of Alto."
+        },
+        {
+            "id": "loc_plaza",
+            "name": "Rusty Plaza",
+            "type": "PublicArea",
+            "description": "The central area of the slums. A large gear monument stands in the center."
+        },
+        {
+            "id": "loc_weapon_shop",
+            "name": "Old Man Gear's Weaponry",
+            "type": "Shop",
+            "description": "Sells heavy wrenches and modified pipes. Run by a stubborn old man."
+        },
+        {
+            "id": "loc_item_shop",
+            "name": "Scrap & Co.",
+            "type": "Shop",
+            "description": "Sells oil, screws, and other consumables. Run by a chatty lady."
+        },
+        {
+            "id": "loc_inn",
+            "name": "The Leaky Pipe Inn",
+            "type": "Inn",
+            "description": "Cheap lodging. The roof leaks oil when it rains."
+        },
+        {
+            "id": "loc_back_alley",
+            "name": "Dark Alley",
+            "type": "Dungeon",
+            "description": "A dangerous path behind the shops. Rumored to have a hidden stash."
+        }
+    ],
+    "connections": [
+        {
+            "from": "loc_garage",
+            "to": "loc_plaza"
+        },
+        {
+            "from": "loc_plaza",
+            "to": "loc_weapon_shop"
+        },
+        {
+            "from": "loc_plaza",
+            "to": "loc_item_shop"
+        },
+        {
+            "from": "loc_plaza",
+            "to": "loc_inn"
+        },
+        {
+            "from": "loc_plaza",
+            "to": "loc_back_alley"
+        }
+    ]
+}

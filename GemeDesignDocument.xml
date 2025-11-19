@@ -1,0 +1,149 @@
+<GameDesignDocument>
+  <Metadata>
+    <Title>ギア・クロニクル ～錆びついた空の歌～</Title>
+    <Genre>16-bit Style RPG</Genre>
+    <Theme>Steampunk, Boy Meets Girl, Adventure, Restoration</Theme>
+    <VisualReference>Late-SFC Era (Pixel Art), Steam, Gears, Rust, Brass</VisualReference>
+  </Metadata>
+
+  <WorldSetting>
+    <Name>Geargard (都市国家ギアガルド)</Name>
+    <Environment>
+      <Condition>Covered in thick smog (Smoke), no blue sky.</Condition>
+      <Structure>
+        <UpperDistrict>Wealthy, clean steam, beautiful machinery.</UpperDistrict>
+        <LowerDistrict>Slums, rust, oil smells, falling debris from above.</LowerDistrict>
+      </Structure>
+    </Environment>
+    <Lore>
+      <Myth>A legend of a "Sky Gear" that once powered a world under a clear dome.</Myth>
+      <Technology>Steam engines are the primary power source. Electronics are rare/primitive.</Technology>
+    </Lore>
+  </WorldSetting>
+
+  <Characters>
+    <Party>
+      <Character id="P01" type="Protagonist">
+        <Name>Alto (アルト)</Name>
+        <Age>16</Age>
+        <Role>Junk Mechanic</Role>
+        <Personality>Optimistic, reckless, hears the "voice of machines".</Personality>
+        <Weapon>Giant Monkey Wrench</Weapon>
+        <Goal>Build an airship to see the blue sky with Mina.</Goal>
+        <CombatStyle>Physical Attacker, Debuffer (Armor Break), Tech User.</CombatStyle>
+      </Character>
+      <Character id="P02" type="Heroine">
+        <Name>Mina (ミナ)</Name>
+        <Age>15</Age>
+        <Role>Key to the World / Living Artifact</Role>
+        <Secret>Her heart is a "Chrono Heart" (Perpetual Engine).</Secret>
+        <Personality>Kind, strong-willed, fears her own non-human nature.</Personality>
+        <Weapon>Pendulum Staff</Weapon>
+        <CombatStyle>Time Mage (Buff/Debuff), Healer. Magic consumes her HP.</CombatStyle>
+      </Character>
+    </Party>
+
+    <Antagonists organization="Imperial Gear Corps">
+      <Boss id="E01" type="Leader">
+        <Name>Victor (ヴィクトル総帥)</Name>
+        <Ideology>Efficiency over humanity. Sacrifices Mina to extend the world's life.</Ideology>
+        <Form>Cyborg (Half-machine), fuses with "Deus Victor" (Fortress).</Form>
+      </Boss>
+      <Boss id="E02" type="Rival">
+        <Name>General Gald (重機騎士ガルド)</Name>
+        <Archetype>Honorable Warrior</Archetype>
+        <Equipment>Steam Powered Suit, Pile Bunker Lance.</Equipment>
+        <Event>Duel at Tower of Atlas.</Event>
+      </Boss>
+      <Boss id="E03" type="MadScientist">
+        <Name>Dr. Gigi (ドクター・ギギ)</Name>
+        <Archetype>Creepy, Unethical</Archetype>
+        <Specialty>Chimera creation (Bio-mechanical).</Specialty>
+        <Event>Trauma inducer at Rotten Core Plant.</Event>
+      </Boss>
+      <Boss id="E04" type="Tragic">
+        <Name>Automata Lily (リリィ)</Name>
+        <Archetype>Emotionless Doll awakening to feelings</Archetype>
+        <Conflict>Programmed to kill vs. desire to protect.</Conflict>
+        <Event>Infiltration of Iron Serpent Train.</Event>
+      </Boss>
+    </Antagonists>
+  </Characters>
+
+  <GameplayMechanics>
+    <BattleSystem>
+      <Resource name="SteamGauge">
+        <Description>Accumulates with actions. Maxing out causes "Overheat" (Turn Skip) but allows "Limit Break".</Description>
+      </Resource>
+      <Mechanic name="Alto_Skills">
+        <Skill name="Wrench Arts">Physical damage, Stun.</Skill>
+        <Skill name="Disassembly">Lowers enemy defense (Armor Break).</Skill>
+        <Skill name="Steam Vent">Reduces Gauge, deals AoE Fire damage.</Skill>
+      </Mechanic>
+      <Mechanic name="Mina_Skills">
+        <Skill name="Chrono Arts">Haste, Slow, Stop.</Skill>
+        <Skill name="Rewind">Heals by reversing time on wounds.</Skill>
+        <Skill name="Risk">Powerful magic drains Mina's HP.</Skill>
+      </Mechanic>
+      <Mechanic name="Resonance">
+        <Effect>Mina's magic is boosted when Alto is in critical HP.</Effect>
+      </Mechanic>
+    </BattleSystem>
+
+    <CraftingSystem name="Invention">
+      <Concept>Combine junk to create gadgets or modify weapons.</Concept>
+      <Formula>Base Material + Additive Material = Result</Formula>
+      <Categories>
+        <Category>Gimmick (Gears, Springs)</Category>
+        <Category>Chemical (Gunpowder, Oil)</Category>
+        <Category>Scrap (Cans, Pipes)</Category>
+      </Categories>
+      <Examples>
+        <Recipe>Can + Gunpowder = Scrap Bomb</Recipe>
+        <Recipe>Wrench + Motor = Chainsaw Edge (Weapon Mod)</Recipe>
+      </Examples>
+      <Outcome>Success (Item), Great Success (Better Item), Failure (Useless Junk).</Outcome>
+    </CraftingSystem>
+
+    <UI_UX>
+      <Style>Steampunk (Brass frames, Gears, Steam vents).</Style>
+      <Elements>
+        <Cursor>Rotating Gear.</Cursor>
+        <HP_Bar>Glass tube with liquid.</HP_Bar>
+        <Steam_Gauge>Analog pressure meter.</Steam_Gauge>
+      </Elements>
+    </UI_UX>
+  </GameplayMechanics>
+
+  <PlotStructure>
+    <Phase id="1" title="Beginning">
+      <Event>Daily life in Lower District.</Event>
+      <Event>Imperial raid. Mina's power awakens.</Event>
+      <Event>Escape via motorbike (Mini-game).</Event>
+    </Phase>
+    <Phase id="2" title="Journey">
+      <Event>Obtain Airship (Father's legacy).</Event>
+      <Event>Dungeons: Iron Serpent (Lily), Rotten Core (Gigi), Tower of Atlas (Gald).</Event>
+      <Conflict>Using the airship drains Mina's life force.</Conflict>
+    </Phase>
+    <Phase id="3" title="Climax">
+      <Event>Infiltration of Babel Gear.</Event>
+      <Event>Defeat Victor.</Event>
+      <Event>Mother Gear goes out of control.</Event>
+    </Phase>
+    <Phase id="4" title="Ending">
+      <Choice>Alto refuses to sacrifice Mina.</Choice>
+      <Action>Alto physically repairs/modifies the Mother Gear using his wrench.</Action>
+      <Result>Smog clears, blue sky revealed. Happy ending.</Result>
+    </Phase>
+  </PlotStructure>
+
+  <ScriptSample>
+    <Scene>Opening</Scene>
+    <Content>
+      Alto fixes a bike. Mina helps, revealing her power.
+      Empire attacks. Tutorial battle (Wrench &amp; Time Magic).
+      Dramatic escape from the garage.
+    </Content>
+  </ScriptSample>
+</GameDesignDocument>

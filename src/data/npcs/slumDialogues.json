@@ -1,0 +1,45 @@
+{
+    "npcs": [
+        {
+            "id": "npc_old_man_gear",
+            "name": "Old Man Gear",
+            "locationId": "loc_weapon_shop",
+            "dialogues": [
+                {
+                    "trigger": "default",
+                    "text": "Hmph. If you're looking for shiny toys, go to the Upper District. Here we sell steel that lasts."
+                },
+                {
+                    "trigger": "buy_wrench",
+                    "text": "Good choice. That wrench has seen more battles than you have hot meals."
+                }
+            ]
+        },
+        {
+            "id": "npc_chatty_lady",
+            "name": "Madam Cog",
+            "locationId": "loc_item_shop",
+            "dialogues": [
+                {
+                    "trigger": "default",
+                    "text": "Oh my, the smog is thick today, isn't it? Makes my joints creak."
+                },
+                {
+                    "trigger": "rumor",
+                    "text": "Did you hear? The Imperial Gear Corps were sniffing around the garage yesterday. Be careful, Alto."
+                }
+            ]
+        },
+        {
+            "id": "npc_slum_kid",
+            "name": "Scrap Kid",
+            "locationId": "loc_plaza",
+            "dialogues": [
+                {
+                    "trigger": "default",
+                    "text": "Mister! Mister! I found a shiny bolt! Do you think it's worth anything?"
+                }
+            ]
+        }
+    ]
+}
