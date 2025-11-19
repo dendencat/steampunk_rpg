@@ -61,6 +61,12 @@ TypeScriptをコンパイルします。
 npm run build
 ```
 
+### 実行 (Run Game)
+プロトタイプのデモをプレイするには、以下のコマンドを実行してください。
+```bash
+npm start
+```
+
 ### テスト実行 (Run Tests)
 実装されたロジックの検証スクリプトを実行します。
 ```bash
