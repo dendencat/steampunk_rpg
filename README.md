@@ -75,5 +75,8 @@ npx ts-node tests/verifyBattleLoop.ts
 *   **Role**: 90年代RPGを愛するベテランゲーム開発者兼シナリオライター
 *   **Tools**: TypeScript, Node.js
 
+## ライセンス (License)
+本プロジェクトは [Apache License 2.0](LICENSE) の下で公開されています。
+
 ---
 *「歯車は回り続ける。いつか、あの空に届くまで。」*
