@@ -1,0 +1,44 @@
+{
+    "name": "Rotten Core",
+    "description": "A waste processing plant filled with toxic sludge and chimera experiments.",
+    "locations": [
+        {
+            "id": "loc_rc_entrance",
+            "name": "Plant Entrance",
+            "type": "SafeZone",
+            "description": "The air is thick with chemical fumes."
+        },
+        {
+            "id": "loc_rc_belt_a",
+            "name": "Conveyor Belt A",
+            "type": "Dungeon",
+            "description": "Moving floors make navigation difficult."
+        },
+        {
+            "id": "loc_rc_vat_room",
+            "name": "Vat Room",
+            "type": "Dungeon",
+            "description": "Giant vats of green liquid bubble ominously."
+        },
+        {
+            "id": "loc_rc_lab",
+            "name": "Dr. Gigi's Lab",
+            "type": "BossRoom",
+            "description": "A sterile room filled with surgical tools and strange specimens."
+        }
+    ],
+    "connections": [
+        {
+            "from": "loc_rc_entrance",
+            "to": "loc_rc_belt_a"
+        },
+        {
+            "from": "loc_rc_belt_a",
+            "to": "loc_rc_vat_room"
+        },
+        {
+            "from": "loc_rc_vat_room",
+            "to": "loc_rc_lab"
+        }
+    ]
+}

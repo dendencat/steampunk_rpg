@@ -1,0 +1,44 @@
+{
+    "name": "Iron Serpent",
+    "description": "A colossal armored train that traverses the continent. Controlled by Automata Lily.",
+    "locations": [
+        {
+            "id": "loc_is_caboose",
+            "name": "Caboose",
+            "type": "SafeZone",
+            "description": "The rear of the train. The wind is strong here."
+        },
+        {
+            "id": "loc_is_cargo_1",
+            "name": "Cargo Bay 1",
+            "type": "Dungeon",
+            "description": "Filled with crates of weapons. Enemy patrols are frequent."
+        },
+        {
+            "id": "loc_is_dining",
+            "name": "Dining Car",
+            "type": "Dungeon",
+            "description": "A luxurious dining area, now overrun by security bots."
+        },
+        {
+            "id": "loc_is_engine",
+            "name": "Engine Room",
+            "type": "BossRoom",
+            "description": "The heart of the train. Lily awaits here."
+        }
+    ],
+    "connections": [
+        {
+            "from": "loc_is_caboose",
+            "to": "loc_is_cargo_1"
+        },
+        {
+            "from": "loc_is_cargo_1",
+            "to": "loc_is_dining"
+        },
+        {
+            "from": "loc_is_dining",
+            "to": "loc_is_engine"
+        }
+    ]
+}

@@ -1,0 +1,55 @@
+{
+    "name": "World Map",
+    "nodes": [
+        {
+            "id": "node_slums",
+            "name": "Geargard Slums",
+            "type": "Town",
+            "mapId": "slumDistrict",
+            "description": "The starting town. Covered in smog."
+        },
+        {
+            "id": "node_iron_serpent",
+            "name": "Iron Serpent Tracks",
+            "type": "Dungeon",
+            "mapId": "ironSerpent",
+            "description": "The route of the armored train."
+        },
+        {
+            "id": "node_rotten_core",
+            "name": "Rotten Core Plant",
+            "type": "Dungeon",
+            "mapId": "rottenCore",
+            "description": "A waste processing facility."
+        },
+        {
+            "id": "node_atlas",
+            "name": "Tower of Atlas",
+            "type": "Dungeon",
+            "mapId": "towerOfAtlas",
+            "description": "A tower reaching for the sky. Currently inaccessible."
+        }
+    ],
+    "edges": [
+        {
+            "from": "node_slums",
+            "to": "node_iron_serpent",
+            "cost": 10
+        },
+        {
+            "from": "node_slums",
+            "to": "node_rotten_core",
+            "cost": 15
+        },
+        {
+            "from": "node_iron_serpent",
+            "to": "node_atlas",
+            "cost": 20
+        },
+        {
+            "from": "node_rotten_core",
+            "to": "node_atlas",
+            "cost": 20
+        }
+    ]
+}
