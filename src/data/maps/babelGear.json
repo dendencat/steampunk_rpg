@@ -1,0 +1,44 @@
+{
+    "name": "Babel Gear",
+    "description": "The Mother Gear fortress floating in the sky. The final stronghold of the Empire.",
+    "locations": [
+        {
+            "id": "loc_bg_base",
+            "name": "Fortress Base",
+            "type": "SafeZone",
+            "description": "The landing zone for the airship. Elite guards patrol here."
+        },
+        {
+            "id": "loc_bg_shaft",
+            "name": "Central Shaft",
+            "type": "Dungeon",
+            "description": "A vertical maze of gears and steam pipes."
+        },
+        {
+            "id": "loc_bg_throne",
+            "name": "Throne of Gears",
+            "type": "BossRoom",
+            "description": "Victor's command center. The Mother Gear hums loudly."
+        },
+        {
+            "id": "loc_bg_core",
+            "name": "The Core",
+            "type": "EventRoom",
+            "description": "The heart of the world's machinery."
+        }
+    ],
+    "connections": [
+        {
+            "from": "loc_bg_base",
+            "to": "loc_bg_shaft"
+        },
+        {
+            "from": "loc_bg_shaft",
+            "to": "loc_bg_throne"
+        },
+        {
+            "from": "loc_bg_throne",
+            "to": "loc_bg_core"
+        }
+    ]
+}
