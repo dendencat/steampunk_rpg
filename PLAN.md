@@ -72,8 +72,8 @@
   - 理由: コンポーネントベースの設計、豊富なエコシステム、TypeScript対応
 - **ビルドツール**: Vite
   - 理由: 高速な開発サーバー、HMR、TypeScript標準サポート
-- **スタイリング**: CSS Modules + Sass
-  - 理由: スコープ化されたスタイル、16bitレトロRPG風のピクセルアート対応
+- **スタイリング**: CSS（最小限、Canvasコンテナのレイアウトのみ）
+  - 理由: 16bitレトロ表現はCanvas内で完結
 
 ### 状態管理
 - **グローバルステート**: Zustand
@@ -84,10 +84,16 @@
 - **TypeScript**: strict mode継続
 - 既存の型定義（`src/types/`）を再利用
 
-### レンダリング
-- **Canvas or DOM**: DOM based (初期フェーズ)
-  - 理由: メニューUI実装が容易、CSS transitionsでレトロ感を演出可能
-  - 将来的にバトル画面でCanvas/PixiJSを検討
+### レンダリング（★16bit表現の核心）
+- **Canvas API**: 全UI要素をCanvasで描画
+  - 理由: 真の16bitピクセルパーフェクト表現を実現
+- **仮想解像度システム**: 内部320x240px → 整数倍スケール表示
+  - SFC実機の解像度（256x224）に近い16:9対応版
+  - ブラウザウィンドウに応じて2x/3x/4xスケール
+  - `image-rendering: pixelated`でアンチエイリアス無効化
+- **ビットマップフォント**: 8x8px/16x16pxのドット絵フォント
+  - Canvas drawImageでピクセル単位描画
+- **将来拡張**: バトル画面でスプライトアニメーション対応
 
 ---
 
@@ -97,39 +103,45 @@
 steampunk_rpg/
 ├── src/
 │   ├── web/                    # 新規: Web UI層
-│   │   ├── components/         # Reactコンポーネント
-│   │   │   ├── common/         # 共通UIパーツ
-│   │   │   │   ├── Button.tsx
-│   │   │   │   ├── DialogBox.tsx
-│   │   │   │   └── PixelBorder.tsx
-│   │   │   ├── menus/          # メニュー画面
+│   │   ├── components/         # Reactコンポーネント（Canvas制御）
+│   │   │   ├── Canvas/         # Canvasラッパーコンポーネント
+│   │   │   │   └── GameCanvas.tsx  # メインCanvasコンポーネント
+│   │   │   ├── menus/          # メニュー画面（Canvas描画指示）
 │   │   │   │   ├── TitleMenu.tsx
-│   │   │   │   ├── MainMenu.tsx
 │   │   │   │   ├── GameMenu.tsx
 │   │   │   │   ├── InventoryMenu.tsx
 │   │   │   │   └── SettingsMenu.tsx
-│   │   │   ├── screens/        # ゲーム画面
-│   │   │   │   ├── BattleScreen.tsx
-│   │   │   │   ├── MapScreen.tsx
-│   │   │   │   └── ShopScreen.tsx
 │   │   │   └── App.tsx         # ルートコンポーネント
+│   │   ├── renderer/           # 【新規】Canvas描画エンジン
+│   │   │   ├── CanvasRenderer.ts      # 描画エンジン本体
+│   │   │   ├── BitmapFont.ts          # ビットマップフォント描画
+│   │   │   ├── WindowRenderer.ts      # ウィンドウ枠描画
+│   │   │   ├── SpriteRenderer.ts      # スプライト描画（将来）
+│   │   │   └── types.ts               # レンダラー用型定義
 │   │   ├── hooks/              # カスタムフック
 │   │   │   ├── useGameState.ts
-│   │   │   └── useBattle.ts
+│   │   │   ├── useCanvas.ts          # Canvas制御フック
+│   │   │   └── useRenderer.ts        # レンダラー制御フック
 │   │   ├── stores/             # Zustand store
 │   │   │   └── gameStore.ts
-│   │   ├── styles/             # グローバルスタイル
-│   │   │   ├── global.scss
-│   │   │   ├── variables.scss  # カラーパレット、フォント定義
-│   │   │   └── mixins.scss
+│   │   ├── assets/             # 画像アセット（ビットマップフォント等）
+│   │   │   ├── fonts/
+│   │   │   │   ├── font_8x8.png      # 8x8pxフォント
+│   │   │   │   └── font_16x16.png    # 16x16pxフォント
+│   │   │   └── ui/
+│   │   │       ├── window_border.png  # ウィンドウ枠（9-slice）
+│   │   │       └── cursor.png         # カーソル画像
+│   │   ├── styles/             # 最小限のCSS
+│   │   │   └── global.css            # Canvasコンテナのレイアウトのみ
+│   │   ├── utils/              # ヘルパー関数
+│   │   │   ├── scaleCalculator.ts    # 整数倍スケール計算
+│   │   │   └── colorPalette.ts       # カラーパレット定義
 │   │   └── main.tsx            # エントリーポイント
 │   ├── systems/                # 既存: ゲームロジック（変更なし）
 │   ├── data/                   # 既存: ゲームデータ（変更なし）
 │   └── types/                  # 既存: 型定義（拡張）
 ├── public/                     # 新規: 静的アセット
-│   ├── index.html
-│   ├── fonts/                  # ピクセルフォント
-│   └── assets/                 # 画像、サウンド（将来）
+│   └── index.html
 ├── dist/                       # ビルド出力
 └── vite.config.ts              # 新規: Vite設定
 ```
@@ -140,16 +152,30 @@ steampunk_rpg/
 
 ### デザインコンセプト
 - **スーパーファミコン後期（1994-1996年代）のUIを再現**
-  - ピクセルフォント使用
-  - ウィンドウ枠はドット絵風のボーダー
+  - ビットマップフォント（8x8px, 16x16px）をCanvas描画
+  - ウィンドウ枠はドット絵PNG（9-sliceパターン）
   - カラーパレット: 錆、蒸気、油を連想させる色
     - ベース: `#2B2A28`（ダークグレー）
     - アクセント: `#D4A574`（錆色）、`#6B8E9E`（スチームブルー）
     - テキスト: `#F5E6D3`（アンティークホワイト）
 
-### レスポンシブ対応
-- 基本解像度: 1280x720（16:9）
-- 最小解像度: 640x480
+### 16bit表現のための解像度戦略
+- **内部解像度（仮想画面）**: 320x240px（4:3比率、SFC風）
+  - または384x216px（16:9対応版）
+  - この解像度でCanvas描画を行う
+- **表示解像度（実際の画面）**: 整数倍スケール
+  - 小画面: 640x480（2xスケール）
+  - 中画面: 960x720（3xスケール）
+  - 大画面: 1280x960（4xスケール）
+  - ブラウザウィンドウサイズに応じて自動切り替え
+- **ピクセルパーフェクト**: 常に整数倍のみ許可（ぼやけ防止）
+- **CSS設定**:
+  ```css
+  canvas {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+  ```
 - モバイルは将来対応（フェーズ3以降）
 
 ---
@@ -270,54 +296,77 @@ export const useGameState = () => {
 ### マイルストーン1: 環境構築（1-2日）
 - [ ] Viteプロジェクトのセットアップ
 - [ ] ReactとTypeScriptの設定
-- [ ] ディレクトリ構造の作成
-- [ ] 基本的なスタイルシステムの構築
+- [ ] ディレクトリ構造の作成（renderer/を含む）
+- [ ] 最小限のCSS（Canvasコンテナレイアウトのみ）
 
-### マイルストーン2: 共通コンポーネント（2-3日）
-- [ ] PixelBorderコンポーネント
-- [ ] Buttonコンポーネント
-- [ ] DialogBoxコンポーネント
-- [ ] メニューナビゲーションロジック
+### マイルストーン2: Canvas描画エンジン基盤（3-4日）★新規
+- [ ] CanvasRenderer.ts実装（基本描画機能）
+- [ ] 仮想解像度システム（320x240 → 整数倍スケール）
+- [ ] BitmapFont.ts実装（ビットマップフォント描画）
+- [ ] WindowRenderer.ts実装（ウィンドウ枠9-slice描画）
+- [ ] useCanvas.tsフック（Canvas制御）
+- [ ] ビットマップフォント画像（8x8px）の作成/取得
 
-### マイルストーン3: メニュー画面実装（3-4日）
-- [ ] TitleMenu実装
-- [ ] GameMenu実装
-- [ ] InventoryMenu実装
-- [ ] SettingsMenu実装
+### マイルストーン3: Reactとの統合（2-3日）
+- [ ] GameCanvas.tsxコンポーネント（Canvasラッパー）
+- [ ] useRenderer.tsフック（レンダラー制御）
+- [ ] 描画ループ（requestAnimationFrame）
+- [ ] キーボード入力ハンドリング
 
-### マイルストーン4: ゲームロジック統合（2-3日）
+### マイルストーン4: メニュー画面実装（3-4日）
+- [ ] TitleMenu実装（Canvas描画指示）
+- [ ] GameMenu実装（Canvas描画指示）
+- [ ] InventoryMenu実装（Canvas描画指示）
+- [ ] カーソル移動アニメーション
+
+### マイルストーン5: ゲームロジック統合（2-3日）
 - [ ] GameStateとReactの統合
 - [ ] セーブ/ロード機能（localStorage）
 - [ ] イベントシステムとの連携
 
-### マイルストーン5: テストとポリッシュ（2日）
+### マイルストーン6: テストとポリッシュ（2日）
 - [ ] 動作確認とデバッグ
-- [ ] スタイル調整
+- [ ] ピクセルパーフェクト確認（整数倍スケール）
 - [ ] ドキュメント更新
 
-**合計見積もり**: 10-14日
+**合計見積もり**: 13-18日（Canvas実装分+3-4日）
 
 ---
 
 ## ⚠️ 技術的課題と解決策
 
-### 課題1: 既存のシングルトンパターンとReactの相性
+### 課題1: 16bitピクセルパーフェクト表現の実現
+**解決策**:
+- **仮想解像度システム**: 320x240pxの低解像度Canvasで描画
+- **整数倍スケーリング**: CSSで2x/3x/4xのみ許可（ぼやけ防止）
+- **image-rendering: pixelated**: アンチエイリアス無効化
+- **ビットマップフォント**: 8x8pxドット絵フォントを`drawImage`で描画
+
+### 課題2: CanvasとReactの統合
+**解決策**:
+- `useRef`でCanvas要素を取得
+- `useEffect`で初回レンダリング時にレンダラー初期化
+- `requestAnimationFrame`で描画ループ実行
+- 状態変更時にレンダラーに通知（`renderer.render(state)`）
+
+### 課題3: 既存のシングルトンパターンとReactの相性
 **解決策**:
 - Zustand storeで`GameState`をラップ
 - 変更通知をイベントエミッターで実装
 
-### 課題2: レトロな見た目の再現
+### 課題4: ビットマップフォントの実装
 **解決策**:
-- CSSフィルター（pixelated rendering）
-- カスタムピクセルフォントの導入
-- ドット絵風ボーダー画像の使用
+- 8x8pxグリッドのPNG画像（ASCII文字を並べたスプライトシート）
+- 文字コードから座標計算（例: 'A' = 65 → x=65%16*8, y=65/16*8）
+- `ctx.drawImage(fontImage, sx, sy, 8, 8, dx, dy, 8, 8)`で描画
 
-### 課題3: パフォーマンス
+### 課題5: パフォーマンス
 **解決策**:
+- ダブルバッファリング（裏Canvas→表Canvasにコピー）
+- ダーティ矩形管理（変更部分のみ再描画）
 - React.memoで不要な再レンダリング防止
-- 仮想スクロール（インベントリが大量の場合）
 
-### 課題4: 状態の永続化
+### 課題6: 状態の永続化
 **解決策**:
 - localStorage APIで簡易セーブ
 - 将来的にIndexedDBへの移行を検討

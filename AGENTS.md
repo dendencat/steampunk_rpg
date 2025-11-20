@@ -47,11 +47,11 @@
 | 技術 | バージョン | 用途 |
 |------|-----------|------|
 | **TypeScript** | 5.2+ | 全てのコード記述 |
-| **React** | 18.2+ | UIコンポーネント構築 |
+| **React** | 18.2+ | UIコンポーネント構築、Canvas制御 |
 | **Vite** | 5.0+ | ビルドツール、開発サーバー |
 | **Zustand** | 4.4+ | グローバル状態管理 |
-| **Sass (SCSS)** | 1.69+ | スタイリング |
-| **CSS Modules** | - | コンポーネントスタイルのスコープ化 |
+| **Canvas API** | - | 16bit風グラフィック描画（★核心技術） |
+| **CSS** | - | 最小限（Canvasコンテナレイアウトのみ） |
 
 #### 開発ツール
 | ツール | 用途 |
@@ -68,8 +68,15 @@
 
 ### 4.2 技術選定の理由
 
+#### なぜCanvas APIか？（★最重要）
+1. **真の16bit表現**: ピクセルパーフェクトな低解像度グラフィック
+2. **整数倍スケーリング**: 320x240pxの内部解像度を2x/3x/4xで拡大（ぼやけなし）
+3. **完全な描画制御**: ビットマップフォント、ドット絵、スプライトを1px単位で制御
+4. **アンチエイリアス回避**: `image-rendering: pixelated`でレトロ感を保持
+5. **DOM比の利点**: CSSでは不可能な低解像度→高解像度変換が可能
+
 #### なぜReactか？
-1. **コンポーネントベース設計**: メニュー、ダイアログ、ボタンなどを再利用可能なパーツとして管理
+1. **Canvas制御の構造化**: useRefでCanvas、useEffectで描画ループを管理
 2. **TypeScript完全対応**: 既存のゲームロジックと型安全に統合
 3. **豊富なエコシステム**: 状態管理、ルーティング、テストツールが充実
 4. **学習リソース**: 日本語ドキュメント、コミュニティが豊富
@@ -88,33 +95,84 @@
 
 ### 4.3 コーディング規約
 
-#### TypeScript
+#### TypeScript（Canvas Renderer）
 ```typescript
-// ✅ 良い例
-interface MenuItemProps {
-  label: string;
-  icon?: string;
-  onClick: () => void;
-  disabled?: boolean;
+// ✅ 良い例: Canvas描画エンジン
+export class CanvasRenderer {
+  private ctx: CanvasRenderingContext2D;
+  private virtualWidth: number = 320;
+  private virtualHeight: number = 240;
+
+  constructor(canvas: HTMLCanvasElement) {
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Canvas context not available');
+    this.ctx = ctx;
+    this.ctx.imageSmoothingEnabled = false; // アンチエイリアス無効
+  }
+
+  public clear(): void {
+    this.ctx.fillStyle = '#2B2A28';
+    this.ctx.fillRect(0, 0, this.virtualWidth, this.virtualHeight);
+  }
+
+  public drawText(text: string, x: number, y: number): void {
+    // ビットマップフォントで描画（後述）
+  }
 }
 
-export const MenuItem: React.FC<MenuItemProps> = ({
-  label,
-  icon,
-  onClick,
-  disabled = false
-}) => {
+// ❌ 悪い例: any型、imageSmoothingEnabledが有効
+export class CanvasRenderer {
+  private ctx: any; // any型禁止
+  constructor(canvas: any) {
+    this.ctx = canvas.getContext('2d');
+    // imageSmoothingEnabledを設定していない→ぼやける
+  }
+}
+```
+
+#### React（Canvas統合）
+```typescript
+// ✅ 良い例: useRefとuseEffectでCanvas制御
+export const GameCanvas: React.FC = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const rendererRef = useRef<CanvasRenderer | null>(null);
+
+  useEffect(() => {
+    if (!canvasRef.current) return;
+
+    const renderer = new CanvasRenderer(canvasRef.current);
+    rendererRef.current = renderer;
+
+    const renderLoop = () => {
+      renderer.clear();
+      renderer.drawText('GEAR CHRONICLE', 10, 10);
+      requestAnimationFrame(renderLoop);
+    };
+    renderLoop();
+
+    return () => {
+      // クリーンアップ
+    };
+  }, []);
+
   return (
-    <button className="menu-item" onClick={onClick} disabled={disabled}>
-      {icon && <span className="icon">{icon}</span>}
-      <span className="label">{label}</span>
-    </button>
+    <canvas
+      ref={canvasRef}
+      width={320}
+      height={240}
+      style={{
+        imageRendering: 'pixelated',
+        width: '640px', // 2xスケール
+        height: '480px'
+      }}
+    />
   );
 };
 
-// ❌ 悪い例
-export const MenuItem = (props: any) => { // any型禁止
-  return <button onClick={props.onClick}>{props.label}</button>;
+// ❌ 悪い例: Canvas要素を直接DOM操作
+export const GameCanvas = () => {
+  return <canvas id="game-canvas"></canvas>;
+  // useRefを使わずdocument.getElementByIdで取得→React外の操作
 };
 ```
 
@@ -140,36 +198,68 @@ const InventoryMenu = () => {
 };
 ```
 
-#### CSS/SCSS
-```scss
-// ✅ 良い例: BEM命名規則 + CSS Modules
-.menu-container {
-  background-color: var(--color-dark-gray);
-  border: 2px solid var(--color-rust);
+#### CSS（最小限のみ）
+```css
+/* ✅ 良い例: Canvasコンテナのレイアウトのみ */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
 
-  &__header {
-    padding: 8px;
-    border-bottom: 1px solid var(--color-steam-blue);
+canvas {
+  image-rendering: pixelated;        /* Chrome/Edge */
+  image-rendering: crisp-edges;      /* Firefox */
+  image-rendering: -moz-crisp-edges; /* 古いFirefox */
+  border: 2px solid #333;            /* 画面枠 */
+}
+
+/* ❌ 悪い例: Canvas内の要素をCSSでスタイル（不可能） */
+.menu-item {
+  color: red; /* Canvas内はCSSで制御できない */
+}
+```
+
+#### ビットマップフォント描画
+```typescript
+// ✅ 良い例: ビットマップフォント実装
+export class BitmapFont {
+  private fontImage: HTMLImageElement;
+  private charWidth: number = 8;
+  private charHeight: number = 8;
+  private charsPerRow: number = 16;
+
+  constructor(fontImagePath: string) {
+    this.fontImage = new Image();
+    this.fontImage.src = fontImagePath;
   }
 
-  &__item {
-    cursor: pointer;
+  public drawText(
+    ctx: CanvasRenderingContext2D,
+    text: string,
+    x: number,
+    y: number
+  ): void {
+    for (let i = 0; i < text.length; i++) {
+      const charCode = text.charCodeAt(i);
+      const sx = (charCode % this.charsPerRow) * this.charWidth;
+      const sy = Math.floor(charCode / this.charsPerRow) * this.charHeight;
 
-    &--selected {
-      background-color: var(--color-rust);
-    }
-
-    &--disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
+      ctx.drawImage(
+        this.fontImage,
+        sx, sy, this.charWidth, this.charHeight,
+        x + i * this.charWidth, y, this.charWidth, this.charHeight
+      );
     }
   }
 }
 
-// ❌ 悪い例: グローバル汚染、具体的すぎるセレクタ
-div.menu > ul > li > a.selected {
-  background: #D4A574;
-}
+// ❌ 悪い例: fillTextを使用（アンチエイリアスがかかる）
+ctx.fillText('GEAR CHRONICLE', 10, 10); // ぼやける
 ```
 
 ### 4.4 ディレクトリ命名規則
@@ -177,25 +267,37 @@ div.menu > ul > li > a.selected {
 ```
 src/web/
 ├── components/
-│   ├── common/          # 汎用UIパーツ（Button, Dialog等）
-│   │   └── Button/      # コンポーネントごとにディレクトリ
-│   │       ├── Button.tsx
-│   │       ├── Button.module.scss
-│   │       └── Button.test.tsx
-│   ├── menus/           # メニュー画面
-│   └── screens/         # ゲーム画面（Battle, Map等）
+│   ├── Canvas/          # Canvasラッパーコンポーネント
+│   │   ├── GameCanvas.tsx
+│   │   └── GameCanvas.test.tsx
+│   └── menus/           # メニュー画面（Canvas描画指示のみ）
+├── renderer/            # Canvas描画エンジン（★核心）
+│   ├── CanvasRenderer.ts       # 描画エンジン本体
+│   ├── BitmapFont.ts           # ビットマップフォント
+│   ├── WindowRenderer.ts       # ウィンドウ枠（9-slice）
+│   ├── SpriteRenderer.ts       # スプライト描画（将来）
+│   └── types.ts                # レンダラー用型定義
 ├── hooks/               # カスタムフック（useで始まる）
+│   ├── useCanvas.ts            # Canvas制御
+│   └── useRenderer.ts          # レンダラー制御
 ├── stores/              # Zustand store（Storeで終わる）
-├── styles/              # グローバルスタイル
+├── assets/              # 画像アセット
+│   ├── fonts/                  # ビットマップフォント画像
+│   └── ui/                     # UIグラフィック
+├── styles/              # 最小限のCSS
+│   └── global.css              # Canvasコンテナのみ
 ├── utils/               # ヘルパー関数
+│   ├── scaleCalculator.ts      # 整数倍スケール計算
+│   └── colorPalette.ts         # カラーパレット
 └── types/               # WebUI専用の型定義
 ```
 
 **ファイル命名規則**:
-- コンポーネント: `PascalCase.tsx`（例: `TitleMenu.tsx`）
-- フック: `camelCase.ts`（例: `useGameState.ts`）
-- スタイル: `*.module.scss`（CSS Modules）
-- テスト: `*.test.tsx`
+- コンポーネント: `PascalCase.tsx`（例: `GameCanvas.tsx`）
+- レンダラークラス: `PascalCase.ts`（例: `CanvasRenderer.ts`）
+- フック: `camelCase.ts`（例: `useCanvas.ts`）
+- スタイル: `global.css`（最小限）
+- テスト: `*.test.tsx`, `*.test.ts`
 
 ---
 
@@ -506,24 +608,55 @@ export const InventoryMenu: React.FC = () => {
 
 ## 11. よくある質問（FAQ）
 
-### Q1: 既存のGameStateを直接変更してもReactは再レンダリングされますか？
+### Q1: なぜDOMではなくCanvasを使うのですか？
+**A**: 真の16bit表現にはピクセルパーフェクトな低解像度描画が必要です。DOMとCSSでは320x240pxの仮想画面を整数倍スケールで表示することが困難です。Canvasなら`imageSmoothingEnabled=false`でアンチエイリアスを無効化でき、ビットマップフォントも1px単位で制御できます。
+
+### Q2: image-rendering: pixelatedだけでは不十分ですか？
+**A**: 不十分です。CSSのみでは以下が困難です：
+- 仮想解像度（320x240）での描画
+- ビットマップフォントの1px単位描画
+- ドット絵の完全な制御
+- 将来のスプライトアニメーション
+
+### Q3: ビットマップフォントはどこで入手しますか？
+**A**: 以下の選択肢があります：
+- [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P)をPNG化
+- [Oldschool PC Font Pack](https://int10h.org/oldschool-pc-fonts/)
+- 自作（8x8pxグリッドで256文字分のスプライトシート）
+
+### Q4: 既存のGameStateを直接変更してもReactは再レンダリングされますか？
 **A**: されません。Zustand storeを経由して変更する必要があります。
 
-### Q2: CSSはグローバルとModulesどちらを使うべきですか？
-**A**: 基本はCSS Modules。グローバル変数（色、フォント等）のみ`variables.scss`に定義。
-
-### Q3: バトル画面もReactで実装しますか？
-**A**: メニューはReact、バトル画面は将来的にCanvas（PixiJS）を検討。
-
-### Q4: モバイル対応は必要ですか？
+### Q5: モバイル対応は必要ですか？
 **A**: フェーズ1では不要。デスクトップブラウザのみ対応。
+
+### Q6: Canvas描画のパフォーマンスは問題ないですか？
+**A**: 320x240pxの低解像度なので問題ありません。60FPSで全画面再描画しても約77,000ピクセルのみ（1920x1080は約2,073,600ピクセル）。必要に応じてダーティ矩形管理で最適化可能。
+
+### Q7: ReactでCanvasを扱うベストプラクティスは？
+**A**:
+- `useRef`でCanvas要素を取得
+- `useEffect`で初回レンダリング時にレンダラー初期化
+- `requestAnimationFrame`で描画ループ
+- 状態変更時に`renderer.render(state)`で再描画指示
 
 ---
 
 ## 12. リソースリンク
 
+### Canvas & 16bit表現
+- [MDN Canvas API](https://developer.mozilla.org/ja/docs/Web/API/Canvas_API)
+- [MDN ImageData](https://developer.mozilla.org/ja/docs/Web/API/ImageData)
+- [image-rendering: pixelated](https://developer.mozilla.org/en-US/docs/Web/CSS/image-rendering)
+- [Oldschool PC Font Pack](https://int10h.org/oldschool-pc-fonts/)
+- [Press Start 2P Font](https://fonts.google.com/specimen/Press+Start+2P)
+
+### React & TypeScript
 - [React公式ドキュメント](https://react.dev/)
 - [Vite公式ドキュメント](https://vitejs.dev/)
 - [Zustand GitHub](https://github.com/pmndrs/zustand)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
-- [BEM命名規則](https://getbem.com/)
+
+### レトロゲーム開発リファレンス
+- [Aseprite](https://www.aseprite.org/)（ドット絵エディタ）
+- [PICO-8](https://www.lexaloffle.com/pico-8.php)（ファンタジーコンソール、低解像度の参考）
