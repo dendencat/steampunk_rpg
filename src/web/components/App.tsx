@@ -5,6 +5,7 @@ import {
   VIRTUAL_HEIGHT,
   calculateScale,
 } from '../utils/scaleCalculator';
+import { GameCanvas } from './GameCanvas';
 
 const App: React.FC = () => {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
@@ -68,15 +69,16 @@ const App: React.FC = () => {
   }, [scale]);
 
   return (
-    <canvas
-      ref={canvasRef}
-      width={VIRTUAL_WIDTH}
-      height={VIRTUAL_HEIGHT}
-      style={{
-        width: `${VIRTUAL_WIDTH * scale}px`,
-        height: `${VIRTUAL_HEIGHT * scale}px`,
-      }}
-    />
+    <div style={{
+      width: '100vw',
+      height: '100vh',
+      backgroundColor: '#1a1a1a',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center'
+    }}>
+      <GameCanvas />
+    </div>
   );
 };
 
